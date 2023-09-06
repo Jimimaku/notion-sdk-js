@@ -1,4 +1,4 @@
-/* spell-checker: disable */
+// cspell:disable-file
 // Note: This is a generated file.
 
 type IdRequest = string | string
@@ -687,6 +687,57 @@ type FormulaPropertyResponse =
   | DateFormulaPropertyResponse
   | NumberFormulaPropertyResponse
   | BooleanFormulaPropertyResponse
+
+type VerificationPropertyUnverifiedResponse = {
+  state: "unverified"
+  date: null
+  verified_by: null
+}
+
+type VerificationPropertyResponse = {
+  state: "verified" | "expired"
+  date: DateResponse | null
+  verified_by:
+    | { id: IdRequest }
+    | null
+    | {
+        person: { email?: string }
+        id: IdRequest
+        type?: "person"
+        name?: string | null
+        avatar_url?: string | null
+        object?: "user"
+      }
+    | null
+    | {
+        bot:
+          | EmptyObject
+          | {
+              owner:
+                | {
+                    type: "user"
+                    user:
+                      | {
+                          type: "person"
+                          person: { email: string }
+                          name: string | null
+                          avatar_url: string | null
+                          id: IdRequest
+                          object: "user"
+                        }
+                      | PartialUserObjectResponse
+                  }
+                | { type: "workspace"; workspace: true }
+              workspace_name: string | null
+            }
+        id: IdRequest
+        type?: "bot"
+        name?: string | null
+        avatar_url?: string | null
+        object?: "user"
+      }
+    | null
+}
 
 type AnnotationResponse = {
   bold: boolean
@@ -3828,7 +3879,6 @@ type EmojiRequest =
   | "↕️"
   | "↕"
   | "↔️"
-  | "↔"
   | "↩️"
   | "↩"
   | "↪️"
@@ -3882,14 +3932,12 @@ type EmojiRequest =
   | "🔁"
   | "🔂"
   | "▶️"
-  | "▶"
   | "⏩"
   | "⏭️"
   | "⏭"
   | "⏯️"
   | "⏯"
   | "◀️"
-  | "◀"
   | "⏪"
   | "⏮️"
   | "⏮"
@@ -3968,7 +4016,6 @@ type EmojiRequest =
   | "®️"
   | "®"
   | "™️"
-  | "™"
   | "#️⃣"
   | "#⃣"
   | "*️⃣"
@@ -4404,6 +4451,20 @@ export type PageObjectResponse = {
       }
     | { type: "last_edited_time"; last_edited_time: string; id: string }
     | { type: "formula"; formula: FormulaPropertyResponse; id: string }
+    | {
+        type: "unique_id"
+        unique_id: { prefix: string | null; number: number | null }
+        id: string
+      }
+    | {
+        type: "verification"
+        verification:
+          | VerificationPropertyUnverifiedResponse
+          | null
+          | VerificationPropertyResponse
+          | null
+        id: string
+      }
     | { type: "title"; title: Array<RichTextItemResponse>; id: string }
     | { type: "rich_text"; rich_text: Array<RichTextItemResponse>; id: string }
     | {
@@ -4424,6 +4485,58 @@ export type PageObjectResponse = {
           | {
               type: "array"
               array: Array<
+                | { type: "number"; number: number | null }
+                | { type: "url"; url: string | null }
+                | { type: "select"; select: SelectPropertyResponse | null }
+                | {
+                    type: "multi_select"
+                    multi_select: Array<SelectPropertyResponse>
+                  }
+                | { type: "status"; status: SelectPropertyResponse | null }
+                | { type: "date"; date: DateResponse | null }
+                | { type: "email"; email: string | null }
+                | { type: "phone_number"; phone_number: string | null }
+                | { type: "checkbox"; checkbox: boolean }
+                | {
+                    type: "files"
+                    files: Array<
+                      | {
+                          file: { url: string; expiry_time: string }
+                          name: StringRequest
+                          type?: "file"
+                        }
+                      | {
+                          external: { url: TextRequest }
+                          name: StringRequest
+                          type?: "external"
+                        }
+                    >
+                  }
+                | {
+                    type: "created_by"
+                    created_by: PartialUserObjectResponse | UserObjectResponse
+                  }
+                | { type: "created_time"; created_time: string }
+                | {
+                    type: "last_edited_by"
+                    last_edited_by:
+                      | PartialUserObjectResponse
+                      | UserObjectResponse
+                  }
+                | { type: "last_edited_time"; last_edited_time: string }
+                | { type: "formula"; formula: FormulaPropertyResponse }
+                | {
+                    type: "unique_id"
+                    unique_id: { prefix: string | null; number: number | null }
+                  }
+                | {
+                    type: "verification"
+                    verification:
+                      | VerificationPropertyUnverifiedResponse
+                      | null
+                      | VerificationPropertyResponse
+                      | null
+                  }
                 | { type: "title"; title: Array<RichTextItemResponse> }
                 | { type: "rich_text"; rich_text: Array<RichTextItemResponse> }
                 | {
@@ -4459,6 +4572,7 @@ export type PageObjectResponse = {
   last_edited_time: string
   archived: boolean
   url: string
+  public_url: string | null
 }
 
 export type PartialPageObjectResponse = { object: "page"; id: string }
@@ -4503,6 +4617,7 @@ type NumberFormat =
   | "leu"
   | "argentine_peso"
   | "uruguayan_peso"
+  | "peruvian_sol"
 
 type NumberDatabasePropertyConfigResponse = {
   type: "number"
@@ -4588,6 +4703,13 @@ type RollupDatabasePropertyConfigResponse = {
     relation_property_id: string
     function: RollupFunction
   }
+  id: string
+  name: string
+}
+
+type UniqueIdDatabasePropertyConfigResponse = {
+  type: "unique_id"
+  unique_id: { prefix: string | null }
   id: string
   name: string
 }
@@ -4691,6 +4813,7 @@ type DatabasePropertyConfigResponse =
   | StatusDatabasePropertyConfigResponse
   | RelationDatabasePropertyConfigResponse
   | RollupDatabasePropertyConfigResponse
+  | UniqueIdDatabasePropertyConfigResponse
   | TitleDatabasePropertyConfigResponse
   | RichTextDatabasePropertyConfigResponse
   | UrlDatabasePropertyConfigResponse
@@ -4728,9 +4851,10 @@ export type DatabaseObjectResponse = {
     | null
   properties: Record<string, DatabasePropertyConfigResponse>
   parent:
+    | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
-    | { type: "workspace"; workspace: true }
     | { type: "block_id"; block_id: string }
+    | { type: "workspace"; workspace: true }
   created_by: PartialUserObjectResponse
   last_edited_by: PartialUserObjectResponse
   is_inline: boolean
@@ -4740,6 +4864,7 @@ export type DatabaseObjectResponse = {
   last_edited_time: string
   archived: boolean
   url: string
+  public_url: string | null
 }
 
 export type PartialBlockObjectResponse = { object: "block"; id: string }
@@ -4785,7 +4910,11 @@ export type ParagraphBlockObjectResponse = {
 
 export type Heading1BlockObjectResponse = {
   type: "heading_1"
-  heading_1: { rich_text: Array<RichTextItemResponse>; color: ApiColor }
+  heading_1: {
+    rich_text: Array<RichTextItemResponse>
+    color: ApiColor
+    is_toggleable: boolean
+  }
   parent:
     | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
@@ -4803,7 +4932,11 @@ export type Heading1BlockObjectResponse = {
 
 export type Heading2BlockObjectResponse = {
   type: "heading_2"
-  heading_2: { rich_text: Array<RichTextItemResponse>; color: ApiColor }
+  heading_2: {
+    rich_text: Array<RichTextItemResponse>
+    color: ApiColor
+    is_toggleable: boolean
+  }
   parent:
     | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
@@ -4821,7 +4954,11 @@ export type Heading2BlockObjectResponse = {
 
 export type Heading3BlockObjectResponse = {
   type: "heading_3"
-  heading_3: { rich_text: Array<RichTextItemResponse>; color: ApiColor }
+  heading_3: {
+    rich_text: Array<RichTextItemResponse>
+    color: ApiColor
+    is_toggleable: boolean
+  }
   parent:
     | { type: "database_id"; database_id: string }
     | { type: "page_id"; page_id: string }
@@ -5081,6 +5218,7 @@ type LanguageRequest =
   | "mathematica"
   | "mermaid"
   | "nix"
+  | "notion formula"
   | "objective-c"
   | "ocaml"
   | "pascal"
@@ -5676,6 +5814,24 @@ export type FormulaPropertyItemObjectResponse = {
   id: string
 }
 
+export type UniqueIdPropertyItemObjectResponse = {
+  type: "unique_id"
+  unique_id: { prefix: string | null; number: number | null }
+  object: "property_item"
+  id: string
+}
+
+export type VerificationPropertyItemObjectResponse = {
+  type: "verification"
+  verification:
+    | VerificationPropertyUnverifiedResponse
+    | null
+    | VerificationPropertyResponse
+    | null
+  object: "property_item"
+  id: string
+}
+
 export type TitlePropertyItemObjectResponse = {
   type: "title"
   title: RichTextItemResponse
@@ -5736,6 +5892,8 @@ export type PropertyItemObjectResponse =
   | LastEditedByPropertyItemObjectResponse
   | LastEditedTimePropertyItemObjectResponse
   | FormulaPropertyItemObjectResponse
+  | UniqueIdPropertyItemObjectResponse
+  | VerificationPropertyItemObjectResponse
   | TitlePropertyItemObjectResponse
   | RichTextPropertyItemObjectResponse
   | PeoplePropertyItemObjectResponse
@@ -5820,6 +5978,10 @@ type DateRequest = {
   time_zone?: TimeZoneRequest | null
 }
 
+type TemplateMentionRequest =
+  | { template_mention_date: "today" | "now"; type?: "template_mention_date" }
+  | { template_mention_user: "me"; type?: "template_mention_user" }
+
 type RichTextItemRequest =
   | {
       text: { content: string; link?: { url: TextRequest } | null }
@@ -5896,6 +6058,7 @@ type RichTextItemRequest =
         | { date: DateRequest }
         | { page: { id: IdRequest } }
         | { database: { id: IdRequest } }
+        | { template_mention: TemplateMentionRequest }
       type?: "mention"
       annotations?: {
         bold?: boolean
@@ -5957,7 +6120,7 @@ type RichTextItemRequest =
       }
     }
 
-type BlockObjectRequestWithoutChildren =
+export type BlockObjectRequestWithoutChildren =
   | {
       embed: { url: string; caption?: Array<RichTextItemRequest> }
       type?: "embed"
@@ -6134,7 +6297,7 @@ type BlockObjectRequestWithoutChildren =
       object?: "block"
     }
 
-type BlockObjectRequest =
+export type BlockObjectRequest =
   | {
       embed: { url: string; caption?: Array<RichTextItemRequest> }
       type?: "embed"
@@ -9259,6 +9422,7 @@ type DatePropertyFilter =
   | { after: string }
   | { on_or_before: string }
   | { on_or_after: string }
+  | { this_week: EmptyObject }
   | { past_week: EmptyObject }
   | { past_month: EmptyObject }
   | { past_year: EmptyObject }
@@ -9293,6 +9457,7 @@ type RollupSubfilterPropertyFilter =
   | { date: DatePropertyFilter }
   | { people: PeoplePropertyFilter }
   | { files: ExistencePropertyFilter }
+  | { status: StatusPropertyFilter }
 
 type RollupPropertyFilter =
   | { any: RollupSubfilterPropertyFilter }
@@ -9341,6 +9506,7 @@ type PropertyFilter =
       type?: "last_edited_time"
     }
   | { formula: FormulaPropertyFilter; property: string; type?: "formula" }
+  | { unique_id: NumberPropertyFilter; property: string; type?: "unique_id" }
   | { rollup: RollupPropertyFilter; property: string; type?: "rollup" }
 
 type TimestampCreatedTimeFilter = {
@@ -9406,236 +9572,190 @@ export const listUsers = {
   path: (): string => `users`,
 } as const
 
-type CreatePageBodyParameters =
-  | {
-      parent: { database_id: IdRequest; type?: "database_id" }
-      properties:
-        | Record<
-            string,
-            | { title: Array<RichTextItemRequest>; type?: "title" }
-            | { rich_text: Array<RichTextItemRequest>; type?: "rich_text" }
-            | { number: number | null; type?: "number" }
-            | { url: TextRequest | null; type?: "url" }
+type CreatePageBodyParameters = {
+  parent:
+    | { page_id: IdRequest; type?: "page_id" }
+    | { database_id: IdRequest; type?: "database_id" }
+  properties:
+    | Record<
+        string,
+        | { title: Array<RichTextItemRequest>; type?: "title" }
+        | { rich_text: Array<RichTextItemRequest>; type?: "rich_text" }
+        | { number: number | null; type?: "number" }
+        | { url: TextRequest | null; type?: "url" }
+        | {
+            select:
+              | { id: StringRequest; name?: StringRequest; color?: SelectColor }
+              | null
+              | { name: StringRequest; id?: StringRequest; color?: SelectColor }
+              | null
+            type?: "select"
+          }
+        | {
+            multi_select: Array<
+              | { id: StringRequest; name?: StringRequest; color?: SelectColor }
+              | { name: StringRequest; id?: StringRequest; color?: SelectColor }
+            >
+            type?: "multi_select"
+          }
+        | {
+            people: Array<
+              | { id: IdRequest }
+              | {
+                  person: { email?: string }
+                  id: IdRequest
+                  type?: "person"
+                  name?: string | null
+                  avatar_url?: string | null
+                  object?: "user"
+                }
+              | {
+                  bot:
+                    | EmptyObject
+                    | {
+                        owner:
+                          | {
+                              type: "user"
+                              user:
+                                | {
+                                    type: "person"
+                                    person: { email: string }
+                                    name: string | null
+                                    avatar_url: string | null
+                                    id: IdRequest
+                                    object: "user"
+                                  }
+                                | PartialUserObjectResponse
+                            }
+                          | { type: "workspace"; workspace: true }
+                        workspace_name: string | null
+                      }
+                  id: IdRequest
+                  type?: "bot"
+                  name?: string | null
+                  avatar_url?: string | null
+                  object?: "user"
+                }
+            >
+            type?: "people"
+          }
+        | { email: StringRequest | null; type?: "email" }
+        | { phone_number: StringRequest | null; type?: "phone_number" }
+        | { date: DateRequest | null; type?: "date" }
+        | { checkbox: boolean; type?: "checkbox" }
+        | { relation: Array<{ id: IdRequest }>; type?: "relation" }
+        | {
+            files: Array<
+              | {
+                  file: { url: string; expiry_time?: string }
+                  name: StringRequest
+                  type?: "file"
+                }
+              | {
+                  external: { url: TextRequest }
+                  name: StringRequest
+                  type?: "external"
+                }
+            >
+            type?: "files"
+          }
+        | {
+            status:
+              | { id: StringRequest; name?: StringRequest; color?: SelectColor }
+              | null
+              | { name: StringRequest; id?: StringRequest; color?: SelectColor }
+              | null
+            type?: "status"
+          }
+      >
+    | Record<
+        string,
+        | Array<RichTextItemRequest>
+        | Array<RichTextItemRequest>
+        | number
+        | null
+        | TextRequest
+        | null
+        | { id: StringRequest; name?: StringRequest; color?: SelectColor }
+        | null
+        | { name: StringRequest; id?: StringRequest; color?: SelectColor }
+        | null
+        | Array<
+            | { id: StringRequest; name?: StringRequest; color?: SelectColor }
+            | { name: StringRequest; id?: StringRequest; color?: SelectColor }
+          >
+        | Array<
+            | { id: IdRequest }
             | {
-                select:
-                  | {
-                      id: StringRequest
-                      name?: StringRequest
-                      color?: SelectColor
-                    }
-                  | null
-                  | {
-                      name: StringRequest
-                      id?: StringRequest
-                      color?: SelectColor
-                    }
-                  | null
-                type?: "select"
+                person: { email?: string }
+                id: IdRequest
+                type?: "person"
+                name?: string | null
+                avatar_url?: string | null
+                object?: "user"
               }
             | {
-                multi_select: Array<
+                bot:
+                  | EmptyObject
                   | {
-                      id: StringRequest
-                      name?: StringRequest
-                      color?: SelectColor
-                    }
-                  | {
-                      name: StringRequest
-                      id?: StringRequest
-                      color?: SelectColor
-                    }
-                >
-                type?: "multi_select"
-              }
-            | {
-                people: Array<
-                  | { id: IdRequest }
-                  | {
-                      person: { email?: string }
-                      id: IdRequest
-                      type?: "person"
-                      name?: string | null
-                      avatar_url?: string | null
-                      object?: "user"
-                    }
-                  | {
-                      bot:
-                        | EmptyObject
+                      owner:
                         | {
-                            owner:
+                            type: "user"
+                            user:
                               | {
-                                  type: "user"
-                                  user:
-                                    | {
-                                        type: "person"
-                                        person: { email: string }
-                                        name: string | null
-                                        avatar_url: string | null
-                                        id: IdRequest
-                                        object: "user"
-                                      }
-                                    | PartialUserObjectResponse
+                                  type: "person"
+                                  person: { email: string }
+                                  name: string | null
+                                  avatar_url: string | null
+                                  id: IdRequest
+                                  object: "user"
                                 }
-                              | { type: "workspace"; workspace: true }
-                            workspace_name: string | null
+                              | PartialUserObjectResponse
                           }
-                      id: IdRequest
-                      type?: "bot"
-                      name?: string | null
-                      avatar_url?: string | null
-                      object?: "user"
+                        | { type: "workspace"; workspace: true }
+                      workspace_name: string | null
                     }
-                >
-                type?: "people"
-              }
-            | { email: StringRequest | null; type?: "email" }
-            | { phone_number: StringRequest | null; type?: "phone_number" }
-            | { date: DateRequest | null; type?: "date" }
-            | { checkbox: boolean; type?: "checkbox" }
-            | { relation: Array<{ id: IdRequest }>; type?: "relation" }
-            | {
-                files: Array<
-                  | {
-                      file: { url: string; expiry_time?: string }
-                      name: StringRequest
-                      type?: "file"
-                    }
-                  | {
-                      external: { url: TextRequest }
-                      name: StringRequest
-                      type?: "external"
-                    }
-                >
-                type?: "files"
-              }
-            | {
-                status:
-                  | {
-                      id: StringRequest
-                      name?: StringRequest
-                      color?: SelectColor
-                    }
-                  | null
-                  | {
-                      name: StringRequest
-                      id?: StringRequest
-                      color?: SelectColor
-                    }
-                  | null
-                type?: "status"
+                id: IdRequest
+                type?: "bot"
+                name?: string | null
+                avatar_url?: string | null
+                object?: "user"
               }
           >
-        | Record<
-            string,
-            | Array<RichTextItemRequest>
-            | Array<RichTextItemRequest>
-            | number
-            | null
-            | TextRequest
-            | null
-            | { id: StringRequest; name?: StringRequest; color?: SelectColor }
-            | null
-            | { name: StringRequest; id?: StringRequest; color?: SelectColor }
-            | null
-            | Array<
-                | {
-                    id: StringRequest
-                    name?: StringRequest
-                    color?: SelectColor
-                  }
-                | {
-                    name: StringRequest
-                    id?: StringRequest
-                    color?: SelectColor
-                  }
-              >
-            | Array<
-                | { id: IdRequest }
-                | {
-                    person: { email?: string }
-                    id: IdRequest
-                    type?: "person"
-                    name?: string | null
-                    avatar_url?: string | null
-                    object?: "user"
-                  }
-                | {
-                    bot:
-                      | EmptyObject
-                      | {
-                          owner:
-                            | {
-                                type: "user"
-                                user:
-                                  | {
-                                      type: "person"
-                                      person: { email: string }
-                                      name: string | null
-                                      avatar_url: string | null
-                                      id: IdRequest
-                                      object: "user"
-                                    }
-                                  | PartialUserObjectResponse
-                              }
-                            | { type: "workspace"; workspace: true }
-                          workspace_name: string | null
-                        }
-                    id: IdRequest
-                    type?: "bot"
-                    name?: string | null
-                    avatar_url?: string | null
-                    object?: "user"
-                  }
-              >
-            | StringRequest
-            | null
-            | StringRequest
-            | null
-            | DateRequest
-            | null
-            | boolean
-            | Array<{ id: IdRequest }>
-            | Array<
-                | {
-                    file: { url: string; expiry_time?: string }
-                    name: StringRequest
-                    type?: "file"
-                  }
-                | {
-                    external: { url: TextRequest }
-                    name: StringRequest
-                    type?: "external"
-                  }
-              >
-            | { id: StringRequest; name?: StringRequest; color?: SelectColor }
-            | null
-            | { name: StringRequest; id?: StringRequest; color?: SelectColor }
-            | null
+        | StringRequest
+        | null
+        | StringRequest
+        | null
+        | DateRequest
+        | null
+        | boolean
+        | Array<{ id: IdRequest }>
+        | Array<
+            | {
+                file: { url: string; expiry_time?: string }
+                name: StringRequest
+                type?: "file"
+              }
+            | {
+                external: { url: TextRequest }
+                name: StringRequest
+                type?: "external"
+              }
           >
-      icon?:
-        | { emoji: EmojiRequest; type?: "emoji" }
+        | { id: StringRequest; name?: StringRequest; color?: SelectColor }
         | null
-        | { external: { url: TextRequest }; type?: "external" }
+        | { name: StringRequest; id?: StringRequest; color?: SelectColor }
         | null
-      cover?: { external: { url: TextRequest }; type?: "external" } | null
-      content?: Array<BlockObjectRequest>
-      children?: Array<BlockObjectRequest>
-    }
-  | {
-      parent: { page_id: IdRequest; type?: "page_id" }
-      properties: {
-        title?:
-          | { title: Array<RichTextItemRequest>; type?: "title" }
-          | Array<RichTextItemRequest>
-      }
-      icon?:
-        | { emoji: EmojiRequest; type?: "emoji" }
-        | null
-        | { external: { url: TextRequest }; type?: "external" }
-        | null
-      cover?: { external: { url: TextRequest }; type?: "external" } | null
-      children?: Array<BlockObjectRequest>
-    }
+      >
+  icon?:
+    | { emoji: EmojiRequest; type?: "emoji" }
+    | null
+    | { external: { url: TextRequest }; type?: "external" }
+    | null
+  cover?: { external: { url: TextRequest }; type?: "external" } | null
+  content?: Array<BlockObjectRequest>
+  children?: Array<BlockObjectRequest>
+}
 
 export type CreatePageParameters = CreatePageBodyParameters
 
@@ -9653,14 +9773,18 @@ type GetPagePathParameters = {
   page_id: IdRequest
 }
 
-export type GetPageParameters = GetPagePathParameters
+type GetPageQueryParameters = {
+  filter_properties?: Array<string>
+}
+
+export type GetPageParameters = GetPagePathParameters & GetPageQueryParameters
 
 export type GetPageResponse = PageObjectResponse | PartialPageObjectResponse
 
 export const getPage = {
   method: "get",
   pathParams: ["page_id"],
-  queryParams: [],
+  queryParams: ["filter_properties"],
   bodyParams: [],
   path: (p: GetPagePathParameters): string => `pages/${p.page_id}`,
 } as const
@@ -10184,7 +10308,10 @@ type AppendBlockChildrenPathParameters = {
   block_id: IdRequest
 }
 
-type AppendBlockChildrenBodyParameters = { children: Array<BlockObjectRequest> }
+type AppendBlockChildrenBodyParameters = {
+  children: Array<BlockObjectRequest>
+  after?: IdRequest
+}
 
 export type AppendBlockChildrenParameters = AppendBlockChildrenPathParameters &
   AppendBlockChildrenBodyParameters
@@ -10202,7 +10329,7 @@ export const appendBlockChildren = {
   method: "patch",
   pathParams: ["block_id"],
   queryParams: [],
-  bodyParams: ["children"],
+  bodyParams: ["children", "after"],
   path: (p: AppendBlockChildrenPathParameters): string =>
     `blocks/${p.block_id}/children`,
 } as const
@@ -10266,8 +10393,6 @@ type UpdateDatabaseBodyParameters = {
         name?: string
       }
     | null
-    | { status: EmptyObject; type?: "status"; name?: string }
-    | null
     | {
         relation:
           | {
@@ -10315,6 +10440,12 @@ type UpdateDatabaseBodyParameters = {
               relation_property_name?: string
             }
         type?: "rollup"
+        name?: string
+      }
+    | null
+    | {
+        unique_id: { prefix?: string | null }
+        type?: "unique_id"
         name?: string
       }
     | null
@@ -10383,6 +10514,10 @@ type QueryDatabasePathParameters = {
   database_id: IdRequest
 }
 
+type QueryDatabaseQueryParameters = {
+  filter_properties?: Array<string>
+}
+
 type QueryDatabaseBodyParameters = {
   sorts?: Array<
     | { property: string; direction: "ascending" | "descending" }
@@ -10419,21 +10554,27 @@ type QueryDatabaseBodyParameters = {
 }
 
 export type QueryDatabaseParameters = QueryDatabasePathParameters &
+  QueryDatabaseQueryParameters &
   QueryDatabaseBodyParameters
 
 export type QueryDatabaseResponse = {
-  type: "page"
-  page: EmptyObject
+  type: "page_or_database"
+  page_or_database: EmptyObject
   object: "list"
   next_cursor: string | null
   has_more: boolean
-  results: Array<PageObjectResponse | PartialPageObjectResponse>
+  results: Array<
+    | PageObjectResponse
+    | PartialPageObjectResponse
+    | PartialDatabaseObjectResponse
+    | DatabaseObjectResponse
+  >
 }
 
 export const queryDatabase = {
   method: "post",
   pathParams: ["database_id"],
-  queryParams: [],
+  queryParams: ["filter_properties"],
   bodyParams: ["sorts", "filter", "start_cursor", "page_size", "archived"],
   path: (p: QueryDatabasePathParameters): string =>
     `databases/${p.database_id}/query`,
@@ -10464,7 +10605,9 @@ export const listDatabases = {
 } as const
 
 type CreateDatabaseBodyParameters = {
-  parent: { page_id: IdRequest; type?: "page_id" }
+  parent:
+    | { page_id: IdRequest; type?: "page_id" }
+    | { database_id: IdRequest; type?: "database_id" }
   properties: Record<
     string,
     | { number: { format?: NumberFormat }; type?: "number" }
@@ -10481,7 +10624,6 @@ type CreateDatabaseBodyParameters = {
         }
         type?: "multi_select"
       }
-    | { status: EmptyObject; type?: "status" }
     | {
         relation:
           | {
@@ -10528,6 +10670,7 @@ type CreateDatabaseBodyParameters = {
             }
         type?: "rollup"
       }
+    | { unique_id: { prefix?: string | null }; type?: "unique_id" }
     | { title: EmptyObject; type?: "title" }
     | { rich_text: EmptyObject; type?: "rich_text" }
     | { url: EmptyObject; type?: "url" }
@@ -10654,4 +10797,46 @@ export const listComments = {
   queryParams: ["block_id", "start_cursor", "page_size"],
   bodyParams: [],
   path: (): string => `comments`,
+} as const
+
+type OauthTokenBodyParameters = {
+  grant_type: string
+  code: string
+  redirect_uri?: string
+  external_account?: { key: string; name: string }
+}
+
+export type OauthTokenParameters = OauthTokenBodyParameters
+
+export type OauthTokenResponse = {
+  access_token: string
+  token_type: "bearer"
+  bot_id: string
+  workspace_icon: string | null
+  workspace_name: string | null
+  workspace_id: string
+  owner:
+    | {
+        type: "user"
+        user:
+          | {
+              type: "person"
+              person: { email: string }
+              name: string | null
+              avatar_url: string | null
+              id: IdRequest
+              object: "user"
+            }
+          | PartialUserObjectResponse
+      }
+    | { type: "workspace"; workspace: true }
+  duplicated_template_id: string | null
+}
+
+export const oauthToken = {
+  method: "post",
+  pathParams: [],
+  queryParams: [],
+  bodyParams: ["grant_type", "code", "redirect_uri", "external_account"],
+  path: (): string => `oauth/token`,
 } as const
